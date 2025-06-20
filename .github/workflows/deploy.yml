@@ -18,9 +18,10 @@ jobs:
           version: 'v3.13.0'
 
       - name: Setup Minikube
-        uses: medyagh/setup-minikube@v2
+        uses: m4n5u/actions-setup-minikube@v1
         with:
-          kubernetes-version: 'latest'
+          minikube-version: latest
+          kubernetes-version: latest
           driver: docker
           memory: 6g
           cpus: 4

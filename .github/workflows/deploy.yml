@@ -1,4 +1,4 @@
-name: Deploy to Kubernetes via Helm
+name: Deploy Microservices to Minikube via Helm
 
 on:
   push:
@@ -8,77 +8,62 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Helm
-        uses: azure/setup-helm@v3
-        with:
-          version: 'v3.13.0'
+        uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y conntrack ipset socat
+          sudo apt update && sudo apt install -y wget curl socat conntrack ipset
 
       - name: Install cri-dockerd
         run: |
-          # Установка зависимостей
-          sudo apt update
-          sudo apt install -y git wget curl
-      
-          # Определяем версию cri-dockerd
-          VERSION="v0.3.15"
-      
-          # Скачиваем и распаковываем
-          wget https://github.com/Mirantis/cri-dockerd/releases/download/${VERSION}/cri-dockerd-${VERSION}-amd64.tgz 
-          sudo tar zxvf cri-dockerd-${VERSION}-amd64.tgz -C /usr/local/bin
-          rm cri-dockerd-${VERSION}-amd64.tgz
-      
-          # Проверяем
-          cri-dockerd --version || echo "cri-dockerd installed successfully"
-      
-      - name: Start cri-dockerd
-        run: |
-          sudo nohup cri-dockerd > /tmp/cri-dockerd.log 2>&1 &
+          VERSION="v0.3.18"
+          wget https://github.com/Mirantis/cri-dockerd/releases/download/${VERSION}/cri-dockerd-${VERSION}-linux-amd64.tar.gz 
+          sudo tar zxvf cri-dockerd-${VERSION}-linux-amd64.tar.gz -C /usr/local/bin
+          rm cri-dockerd-${VERSION}-linux-amd64.tar.gz
+
+          # Запуск cri-dockerd
+          nohup cri-dockerd > /tmp/cri-dockerd.log 2>&1 &
           sleep 5
-      
+
       - name: Download and install minikube
         run: |
           curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 
           chmod +x minikube
           sudo mv minikube /usr/local/bin/
-      
+
       - name: Start Minikube
         run: |
           minikube start --driver=none --container-runtime=docker --kubernetes-version=latest
-          
-      - name: Check Minikube status
+
+      - name: Set Docker environment for Minikube
         run: |
-          minikube status
-      
-      - name: Check cri-dockerd logs
-        run: |
-          cat /tmp/cri-dockerd.log
-      
-      - name: Check Minikube status
-        run: |
-          minikube status
-      
-      - name: Check nodes
-        run: |
-          kubectl get nodes
+          eval $(minikube docker-env)
+          docker info | grep "Server Version"
 
       - name: Build Docker images
         run: |
+          eval $(minikube docker-env)
+
+          # Node.js сервис
           cd ../nodejs-microservice
           docker build -t nodejs-microservice:latest .
+
+          # Python сервис
           cd ../python-api
           docker build -t python-microservice:latest .
+
           cd ../my-microservice-app
 
-      - name: Install Helm chart
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.13.0
+
+      - name: Deploy Helm chart
         run: |
+          cd my-microservice-app
           helm dependency update
           helm install my-release .

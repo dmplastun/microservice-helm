@@ -17,7 +17,11 @@ jobs:
         with:
           version: 'v3.13.0'
 
-      - name: Install Minikube
+      - name: Install dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y conntrack
+      
+      - name: Download and install minikube
         run: |
           curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 
           chmod +x minikube
@@ -26,6 +30,14 @@ jobs:
       - name: Start Minikube
         run: |
           minikube start --driver=none --kubernetes-version=latest
+          
+      - name: Check Minikube status
+        run: |
+          minikube status
+      
+      - name: Check Kubernetes nodes
+        run: |
+          kubectl get nodes
 
       - name: Build Docker images
         run: |

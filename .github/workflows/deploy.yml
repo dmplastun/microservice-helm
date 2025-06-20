@@ -18,7 +18,7 @@ jobs:
           version: 'v3.13.0'
 
       - name: Setup Minikube
-        uses: m4n5u/actions-setup-minikube@v1
+        uses: manusa/actions-setup-minikube@v1
         with:
           minikube-version: latest
           kubernetes-version: latest

@@ -17,14 +17,15 @@ jobs:
         with:
           version: 'v3.13.0'
 
-      - name: Setup Minikube
-        uses: m4n5u/actions-setup-minikube@v1
-        with:
-          minikube-version: latest
-          kubernetes-version: latest
-          driver: docker
-          memory: 6g
-          cpus: 4
+      - name: Install Minikube
+        run: |
+          curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 
+          chmod +x minikube
+          sudo mv minikube /usr/local/bin/
+      
+      - name: Start Minikube
+        run: |
+          minikube start --driver=none --kubernetes-version=latest
 
       - name: Build Docker images
         run: |

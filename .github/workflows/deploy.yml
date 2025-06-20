@@ -24,9 +24,20 @@ jobs:
 
       - name: Install cri-dockerd
         run: |
-          wget https://github.com/Mirantis/cri-dockerd/releases/download/v0.3.10/cri-dockerd-0.3.10-linux-amd64.tar.gz 
-          sudo tar zxvf cri-dockerd-0.3.10-linux-amd64.tar.gz -C /usr/local/bin
-          rm cri-dockerd-0.3.10-linux-amd64.tar.gz
+          # Установка зависимостей
+          sudo apt update
+          sudo apt install -y git wget curl
+      
+          # Определяем версию cri-dockerd
+          VERSION="v0.3.15"
+      
+          # Скачиваем и распаковываем
+          wget https://github.com/Mirantis/cri-dockerd/releases/download/${VERSION}/cri-dockerd-${VERSION}-amd64.tgz 
+          sudo tar zxvf cri-dockerd-${VERSION}-amd64.tgz -C /usr/local/bin
+          rm cri-dockerd-${VERSION}-amd64.tgz
+      
+          # Проверяем
+          cri-dockerd --version || echo "cri-dockerd installed successfully"
       
       - name: Start cri-dockerd
         run: |

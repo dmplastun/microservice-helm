@@ -21,10 +21,17 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y conntrack ipset socat
-          # Установка crictl
-          wget https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.28.0/crictl-v1.28.0-linux-amd64.tar.gz 
-          sudo tar zxvf crictl-v1.28.0-linux-amd64.tar.gz -C /usr/local/bin
-          rm crictl-v1.28.0-linux-amd64.tar.gz
+
+      - name: Install cri-dockerd
+        run: |
+          wget https://github.com/Mirantis/cri-dockerd/releases/download/v0.3.10/cri-dockerd-0.3.10-linux-amd64.tar.gz 
+          sudo tar zxvf cri-dockerd-0.3.10-linux-amd64.tar.gz -C /usr/local/bin
+          rm cri-dockerd-0.3.10-linux-amd64.tar.gz
+      
+      - name: Start cri-dockerd
+        run: |
+          sudo nohup cri-dockerd > /tmp/cri-dockerd.log 2>&1 &
+          sleep 5
       
       - name: Download and install minikube
         run: |
@@ -34,13 +41,21 @@ jobs:
       
       - name: Start Minikube
         run: |
-          minikube start --driver=none --kubernetes-version=latest
+          minikube start --driver=none --container-runtime=docker --kubernetes-version=latest
           
       - name: Check Minikube status
         run: |
           minikube status
       
-      - name: Check Kubernetes nodes
+      - name: Check cri-dockerd logs
+        run: |
+          cat /tmp/cri-dockerd.log
+      
+      - name: Check Minikube status
+        run: |
+          minikube status
+      
+      - name: Check nodes
         run: |
           kubectl get nodes
 

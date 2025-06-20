@@ -19,7 +19,12 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get update && sudo apt-get install -y conntrack
+          sudo apt-get update
+          sudo apt-get install -y conntrack ipset socat
+          # Установка crictl
+          wget https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.28.0/crictl-v1.28.0-linux-amd64.tar.gz 
+          sudo tar zxvf crictl-v1.28.0-linux-amd64.tar.gz -C /usr/local/bin
+          rm crictl-v1.28.0-linux-amd64.tar.gz
       
       - name: Download and install minikube
         run: |

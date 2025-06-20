@@ -1,0 +1,16 @@
+Thank you for installing {{ .Chart.Name }}!
+
+Your Node.js microservice is running in the cluster.
+
+To access it from outside the cluster run:
+
+  minikube service nodejs-service
+
+Your Python microservice is also deployed and can be accessed via:
+
+  minikube service python-service
+
+Or use Ingress:
+
+  http://<your-ingress-ip>/node
+  http://<your-ingress-ip>/python

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodejs-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.nodejs.service.port }}
+      targetPort: {{ .Values.nodejs.service.port }}
+      protocol: TCP
+  selector:
+    app: nodejs

@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-service
+spec:
+  replicas: {{ .Values.python.replicaCount }}
+  selector:
+    matchLabels:
+      app: python
+  template:
+    metadata:
+      labels:
+        app: python
+    spec:
+      containers:
+      - name: python
+        image: "{{ .Values.python.image.repository }}:{{ .Values.python.image.tag }}"
+        imagePullPolicy: Never
+        ports:
+        - containerPort: {{ .Values.python.service.port }}
+        envFrom:
+        - configMapRef:
+            name: app-config
+        - secretRef:
+            name: app-secrets

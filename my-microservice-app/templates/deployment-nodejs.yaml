@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodejs-service
+spec:
+  replicas: {{ .Values.nodejs.replicaCount }}
+  selector:
+    matchLabels:
+      app: nodejs
+  template:
+    metadata:
+      labels:
+        app: nodejs
+    spec:
+      containers:
+      - name: nodejs
+        image: "{{ .Values.nodejs.image.repository }}:{{ .Values.nodejs.image.tag }}"
+        imagePullPolicy: Never
+        ports:
+        - containerPort: {{ .Values.nodejs.service.port }}

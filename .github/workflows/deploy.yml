@@ -47,7 +47,7 @@ jobs:
       
       - name: Install crictl (auto arch)
         run: |
-          CRICTL_VERSION="v1.33.0"
+          CRICTL_VERSION="1.33.0"
           ARCH=$(uname -m)
       
           if [[ "$ARCH" == "x86_64" ]]; then

@@ -19,7 +19,7 @@ jobs:
 
       - name: Determine architecture and download cri-dockerd
         run: |
-          VERSION="v0.3.19"
+          VERSION="0.3.19"
           ARCH=$(uname -m)
           FILENAME=""
 

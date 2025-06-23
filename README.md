@@ -76,6 +76,6 @@ minikube service python-service
 
 ## 🙌 Автор 
 
-<p>dmplastun</p>
+<p>🪪 dmplastun</p>
 <p>📧 dmitrij.plastun@gmail.com</p> 
 <p>🔗 https://github.com/dmplastun/microservice-helm</p>

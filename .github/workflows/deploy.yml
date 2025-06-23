@@ -33,7 +33,7 @@ jobs:
           fi
 
           echo "Downloading cri-dockerd: $FILENAME"
-          wget https://github.com/Mirantis/cri-dockerd/releases/download/${VERSION}/${FILENAME} 
+          wget https://github.com/Mirantis/cri-dockerd/releases/download/v${VERSION}/${FILENAME} 
 
           sudo tar zxvf ${FILENAME} -C /usr/local/bin
           rm ${FILENAME}

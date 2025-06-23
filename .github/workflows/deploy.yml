@@ -38,12 +38,18 @@ jobs:
           sudo tar zxvf ${FILENAME} -C /usr/local/bin
           rm ${FILENAME}
 
-          # Run cri-dockerd in background
-          nohup cri-dockerd > /tmp/cri-dockerd.log 2>&1 &
-          sleep 5
+          # Проверка наличия бинарника
+          ls -la /usr/local/bin/cri-dockerd
 
-          # Verify installation
-          cri-dockerd --version || echo "cri-dockerd installed successfully"
+          # Запуск в фоне
+          nohup /usr/local/bin/cri-dockerd > /tmp/cri-dockerd.log 2>&1 &
+          sleep 10
+
+          # Проверка логов
+          cat /tmp/cri-dockerd.log
+
+          # Проверка работы
+          ps aux | grep cri-dockerd
 
       - name: Install crictl (auto arch)
         run: |
@@ -70,9 +76,14 @@ jobs:
           chmod +x minikube
           sudo mv minikube /usr/local/bin/
 
-      - name: Start Minikube
+      - name: Start Minikube with debug log
         run: |
-          minikube start --driver=none --container-runtime=docker --kubernetes-version=latest
+          minikube start \
+            --driver=none \
+            --container-runtime=docker \
+            --kubernetes-version=latest \
+            --alsologtostderr \
+            --v=4
 
       - name: Check Minikube status
         run: |

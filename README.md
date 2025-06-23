@@ -78,4 +78,4 @@ minikube service python-service
 
 <p>🪪 dmplastun</p>
 <p>📧 dmitrij.plastun@gmail.com</p> 
-<p>🔗 https://github.com/dmplastun/microservice-helm</p>
+<p>🔗 https://dmplastun.github.io/microservice-helm/</p>

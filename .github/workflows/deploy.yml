@@ -44,7 +44,16 @@ jobs:
 
           # Проверка
           cri-dockerd --version || echo "cri-dockerd installed successfully"
-
+      
+      - name: Install crictl
+        run: |
+          CRICTL_VERSION="v1.28.0"
+          ARCH=$(uname -m)
+          wget https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.28.0/crictl-v1.28.0-linux-${ARCH}.tar.gz 
+          sudo tar zxvf crictl-v1.28.0-linux-${ARCH}.tar.gz -C /usr/local/bin
+          rm crictl-v1.28.0-linux-${ARCH}.tar.gz
+          crictl --version
+    
       - name: Download and install minikube
         run: |
           curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 
@@ -54,6 +63,14 @@ jobs:
       - name: Start Minikube
         run: |
           minikube start --driver=none --container-runtime=docker --kubernetes-version=latest
+
+      - name: Check Minikube status
+        run: |
+          minikube status
+      
+      - name: Check nodes
+        run: |
+          kubectl get nodes
 
       - name: Set Docker environment to Minikube
         run: |

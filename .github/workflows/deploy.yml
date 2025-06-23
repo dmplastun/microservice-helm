@@ -38,18 +38,18 @@ jobs:
           sudo tar zxvf ${FILENAME} -C /usr/local/bin
           rm ${FILENAME}
 
-          # Запуск cri-dockerd в фоне
+          # Run cri-dockerd in background
           nohup cri-dockerd > /tmp/cri-dockerd.log 2>&1 &
           sleep 5
 
-          # Проверка
+          # Verify installation
           cri-dockerd --version || echo "cri-dockerd installed successfully"
-      
+
       - name: Install crictl (auto arch)
         run: |
           CRICTL_VERSION="1.33.0"
           ARCH=$(uname -m)
-      
+
           if [[ "$ARCH" == "x86_64" ]]; then
             ARCH="amd64"
           elif [[ "$ARCH" == "aarch64" ]]; then
@@ -58,12 +58,12 @@ jobs:
             echo "Unsupported architecture: $ARCH"
             exit 1
           fi
-      
+
           wget https://github.com/kubernetes-sigs/cri-tools/releases/download/v${CRICTL_VERSION}/crictl-v${CRICTL_VERSION}-linux-${ARCH}.tar.gz 
           sudo tar zxvf crictl-v${CRICTL_VERSION}-linux-${ARCH}.tar.gz -C /usr/local/bin
           rm crictl-v${CRICTL_VERSION}-linux-${ARCH}.tar.gz
           crictl --version
-    
+
       - name: Download and install minikube
         run: |
           curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 
@@ -77,7 +77,7 @@ jobs:
       - name: Check Minikube status
         run: |
           minikube status
-      
+
       - name: Check nodes
         run: |
           kubectl get nodes

@@ -17,98 +17,25 @@ jobs:
         run: |
           sudo apt update && sudo apt install -y wget curl socat conntrack ipset jq
 
-      - name: Determine architecture and download cri-dockerd
-        run: |
-          VERSION="0.3.19"
-          ARCH=$(uname -m)
-          FILENAME=""
-
-          if [[ "$ARCH" == "x86_64" ]]; then
-            FILENAME="cri-dockerd-${VERSION}.amd64.tgz"
-          elif [[ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]]; then
-            FILENAME="cri-dockerd-${VERSION}.arm64.tgz"
-          else
-            echo "Unsupported architecture: $ARCH"
-            exit 1
-          fi
-
-          echo "Downloading cri-dockerd: $FILENAME"
-          wget https://github.com/Mirantis/cri-dockerd/releases/download/v${VERSION}/${FILENAME} 
-
-          sudo tar zxvf ${FILENAME} -C /usr/local/bin
-          rm ${FILENAME}
-
-          # Проверка наличия бинарника
-          ls -la /usr/local/bin/cri-dockerd
-
-          # Запуск в фоне
-          nohup /usr/local/bin/cri-dockerd > /tmp/cri-dockerd.log 2>&1 &
-          sleep 10
-
-          # Проверка логов
-          cat /tmp/cri-dockerd.log
-
-          # Проверка работы
-          ps aux | grep cri-dockerd
-
-      - name: Install crictl (auto arch)
-        run: |
-          CRICTL_VERSION="1.33.0"
-          ARCH=$(uname -m)
-
-          if [[ "$ARCH" == "x86_64" ]]; then
-            ARCH="amd64"
-          elif [[ "$ARCH" == "aarch64" ]]; then
-            ARCH="arm64"
-          else
-            echo "Unsupported architecture: $ARCH"
-            exit 1
-          fi
-
-          wget https://github.com/kubernetes-sigs/cri-tools/releases/download/v${CRICTL_VERSION}/crictl-v${CRICTL_VERSION}-linux-${ARCH}.tar.gz 
-          sudo tar zxvf crictl-v${CRICTL_VERSION}-linux-${ARCH}.tar.gz -C /usr/local/bin
-          rm crictl-v${CRICTL_VERSION}-linux-${ARCH}.tar.gz
-          crictl --version
-
-      - name: Download and install minikube
-        run: |
-          curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 
-          chmod +x minikube
-          sudo mv minikube /usr/local/bin/
-
-      - name: Start Minikube with debug log
-        run: |
-          minikube start \
-            --driver=none \
-            --container-runtime=docker \
-            --kubernetes-version=latest \
-            --alsologtostderr \
-            --v=4
+      - name: Start Minikube
+        uses: medyagh/setup-minikube@latest
+        with:
+          kubernetes-version: 'latest'
+          driver: none
+          container-runtime: docker
 
       - name: Check Minikube status
-        run: |
-          minikube status
-
-      - name: Check nodes
-        run: |
-          kubectl get nodes
-
-      - name: Set Docker environment to Minikube
-        run: |
-          eval $(minikube docker-env)
-          docker info | grep "Server Version"
+        run: minikube status
 
       - name: Build Node.js microservice image
         run: |
-          eval $(minikube docker-env)
-          cd ../nodejs-microservice
-          docker build -t nodejs-microservice:latest .
+          docker build -t nodejs-microservice:latest ./nodejs-microservice
+          minikube image load nodejs-microservice:latest
 
       - name: Build Python microservice image
         run: |
-          eval $(minikube docker-env)
-          cd ../python-api
-          docker build -t python-microservice:latest .
+          docker build -t python-microservice:latest ./python-api
+          minikube image load python-microservice:latest
 
       - name: Install Helm
         uses: azure/setup-helm@v3

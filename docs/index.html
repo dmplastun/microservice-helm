@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Микросервисное приложение на Kubernetes</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css"> 
+</head>
+<body>
+  <main class="container">
+    <header>
+      <hgroup>
+        <h1>🧪 Микросервисное приложение на Kubernetes с Helm</h1>
+        <p>Развертывание микросервисов через Minikube и Helm</p>
+      </hgroup>
+    </header>
+
+    <section>
+      <h2>🛠 Основные технологии</h2>
+      <ul>
+        <li>Kubernetes — оркестрация контейнеров</li>
+        <li>Minikube — локальный кластер Kubernetes</li>
+        <li>Helm — управление пакетами в Kubernetes</li>
+        <li>Docker — контейнеризация сервисов</li>
+        <li>GitHub Actions — автоматизация CI/CD</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>📦 Структура проекта</h2>
+      <pre>
+.  
+├── nodejs-microservice/     # Node.js микросервис  
+├── python-api/              # Python Flask API  
+├── my-microservice-app/     # Helm чарт  
+└── .github/workflows/deploy.yml # CI/CD через GitHub Actions
+      </pre>
+    </section>
+
+    <section>
+      <h2>🚀 Локальный запуск</h2>
+      <ol>
+        <li><code>sudo apt update && sudo apt install -y docker.io kubectl minikube helm</code></li>
+        <li><code>minikube start --driver=docker --container-runtime=docker</code></li>
+        <li><code>cd nodejs-microservice && docker build -t nodejs-microservice:latest .</code></li>
+        <li><code>cd ../python-api && docker build -t python-microservice:latest .</code></li>
+        <li><code>eval $(minikube docker-env)</code></li>
+        <li><code>cd ../my-microservice-app && helm install my-release .</code></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>🤖 CI/CD через GitHub Actions</h2>
+      <p>При каждом пуше в ветку <code>main</code> выполняется:</p>
+      <ul>
+        <li>Установка зависимостей</li>
+        <li>Запуск Minikube</li>
+        <li>Сборка Docker-образов</li>
+        <li>Деплой через Helm</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>📘 GitHub Pages</h2>
+      <p>Этот сайт автоматически обновляется из README.md и отображается здесь:</p>
+      <p><a href="https://yourusername.github.io/yourrepo/">https://yourusername.github.io/yourrepo/</a></p> 
+    </section>
+
+    <footer style="margin-top: 2rem; text-align: center;">
+      <p>Made for learning Kubernetes and Helm!</p>
+    </footer>
+  </main>
+</body>
+</html>

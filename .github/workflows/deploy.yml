@@ -15,18 +15,35 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt update && sudo apt install -y wget curl socat conntrack ipset
+          sudo apt update && sudo apt install -y wget curl socat conntrack ipset jq
 
-      - name: Install cri-dockerd
+      - name: Determine architecture and download cri-dockerd
         run: |
-          VERSION="v0.3.18"
-          wget https://github.com/Mirantis/cri-dockerd/releases/download/${VERSION}/cri-dockerd-${VERSION}-linux-amd64.tar.gz 
-          sudo tar zxvf cri-dockerd-${VERSION}-linux-amd64.tar.gz -C /usr/local/bin
-          rm cri-dockerd-${VERSION}-linux-amd64.tar.gz
+          VERSION="v0.3.19"
+          ARCH=$(uname -m)
+          FILENAME=""
 
-          # Запуск cri-dockerd
+          if [[ "$ARCH" == "x86_64" ]]; then
+            FILENAME="cri-dockerd-${VERSION}.amd64.tgz"
+          elif [[ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]]; then
+            FILENAME="cri-dockerd-${VERSION}.arm64.tgz"
+          else
+            echo "Unsupported architecture: $ARCH"
+            exit 1
+          fi
+
+          echo "Downloading cri-dockerd: $FILENAME"
+          wget https://github.com/Mirantis/cri-dockerd/releases/download/${VERSION}/${FILENAME} 
+
+          sudo tar zxvf ${FILENAME} -C /usr/local/bin
+          rm ${FILENAME}
+
+          # Запуск cri-dockerd в фоне
           nohup cri-dockerd > /tmp/cri-dockerd.log 2>&1 &
           sleep 5
+
+          # Проверка
+          cri-dockerd --version || echo "cri-dockerd installed successfully"
 
       - name: Download and install minikube
         run: |
@@ -38,24 +55,22 @@ jobs:
         run: |
           minikube start --driver=none --container-runtime=docker --kubernetes-version=latest
 
-      - name: Set Docker environment for Minikube
+      - name: Set Docker environment to Minikube
         run: |
           eval $(minikube docker-env)
           docker info | grep "Server Version"
 
-      - name: Build Docker images
+      - name: Build Node.js microservice image
         run: |
           eval $(minikube docker-env)
-
-          # Node.js сервис
           cd ../nodejs-microservice
           docker build -t nodejs-microservice:latest .
 
-          # Python сервис
+      - name: Build Python microservice image
+        run: |
+          eval $(minikube docker-env)
           cd ../python-api
           docker build -t python-microservice:latest .
-
-          cd ../my-microservice-app
 
       - name: Install Helm
         uses: azure/setup-helm@v3

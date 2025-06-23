@@ -45,13 +45,23 @@ jobs:
           # Проверка
           cri-dockerd --version || echo "cri-dockerd installed successfully"
       
-      - name: Install crictl
+      - name: Install crictl (auto arch)
         run: |
           CRICTL_VERSION="v1.33.0"
           ARCH=$(uname -m)
-          wget https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.33.0/crictl-v1.33.0-linux-arm64.tar.gz
-          sudo tar zxvf crictl-v1.33.0-linux-arm64.tar.gz -C /usr/local/bin
-          rm crictl-v1.33.0-linux-arm64.tar.gz
+      
+          if [[ "$ARCH" == "x86_64" ]]; then
+            ARCH="amd64"
+          elif [[ "$ARCH" == "aarch64" ]]; then
+            ARCH="arm64"
+          else
+            echo "Unsupported architecture: $ARCH"
+            exit 1
+          fi
+      
+          wget https://github.com/kubernetes-sigs/cri-tools/releases/download/v${CRICTL_VERSION}/crictl-v${CRICTL_VERSION}-linux-${ARCH}.tar.gz 
+          sudo tar zxvf crictl-v${CRICTL_VERSION}-linux-${ARCH}.tar.gz -C /usr/local/bin
+          rm crictl-v${CRICTL_VERSION}-linux-${ARCH}.tar.gz
           crictl --version
     
       - name: Download and install minikube
